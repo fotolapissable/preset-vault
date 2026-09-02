@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Preset Vault — fotolapissable</title>
+<meta name="description" content="Catalogo consultabile dei preset Lightroom Classic fotolapissable: Etna, macro, fiori, mare, food, social. Guida rapida per scelta preset sul campo.">
+<meta name="theme-color" content="#141210">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Preset Vault">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NN6FP74TCW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NN6FP74TCW');
+</script>
+<style>
+  :root{
+    --bg:#141210;
+    --bg-raised:#1c1916;
+    --bg-card:#1f1c18;
+    --line:#2c2822;
+    --amber:#C8813A;
+    --amber-light:#E0A56A;
+    --text:#F2EDE6;
+    --text-dim:#A79A88;
+    --text-faint:#6E6357;
+    --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --mono: "SF Mono",ui-monospace,"Cascadia Code",monospace;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; padding-bottom:3rem;}
+  .wrap{max-width:680px; margin:0 auto; padding:0 1.25rem;}
+
+  header{padding:2.5rem 1.25rem 1.25rem;}
+  header .mark{display:flex; align-items:center; gap:.6rem; font-family:var(--serif); font-size:1.05rem; color:var(--text-dim); margin-bottom:1.6rem;}
+  header .mark .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);}
+  h1{font-family:var(--serif); font-weight:400; font-size:2.05rem; line-height:1.15; margin:0 0 .35rem;}
+  h1 em{font-style:italic; color:var(--amber-light);}
+  .sub{color:var(--text-dim); font-size:.92rem; max-width:38ch; line-height:1.5;}
+
+  .searchbar{
+    margin-top:1.5rem; position:relative;
+  }
+  .searchbar input{
+    width:100%; background:var(--bg-raised); border:1px solid var(--line); color:var(--text);
+    padding:.85rem 1rem; border-radius:12px; font-size:.95rem; font-family:var(--sans);
+  }
+  .searchbar input:focus{outline:none; border-color:var(--amber);}
+  .searchbar input::placeholder{color:var(--text-faint);}
+
+  .chips{display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1rem;}
+  .chip{
+    background:var(--bg-raised); border:1px solid var(--line); color:var(--text-dim);
+    padding:.42rem .85rem; border-radius:999px; font-size:.78rem; cursor:pointer; user-select:none;
+  }
+  .chip.active{border-color:var(--amber); color:var(--amber-light); background:rgba(200,129,58,.1);}
+
+  .resultcount{margin-top:1.1rem; font-size:.78rem; color:var(--text-faint);}
+
+  .groups{margin-top:1rem;}
+  .group-title{
+    font-family:var(--serif); font-size:.85rem; letter-spacing:.02em; color:var(--text-faint);
+    margin:1.75rem 0 .6rem; padding-bottom:.4rem; border-bottom:1px solid var(--line);
+  }
+
+  .card{
+    background:var(--bg-card); border:1px solid var(--line); border-radius:14px;
+    padding:1.1rem 1.2rem; margin-bottom:.7rem; cursor:pointer;
+  }
+  .card .row1{display:flex; align-items:baseline; justify-content:space-between; gap:.6rem;}
+  .card h3{font-family:var(--serif); font-weight:400; font-size:1.08rem; margin:0; color:var(--text);}
+  .card .srctag{
+    font-family:var(--mono); font-size:.68rem; padding:.18rem .5rem; border-radius:6px;
+    background:var(--bg-raised); color:var(--text-faint); white-space:nowrap; flex-shrink:0;
+  }
+  .card .srctag.dng{color:var(--amber-light); border:1px solid rgba(200,129,58,.35);}
+  .card .quando{color:var(--text-dim); font-size:.85rem; margin-top:.4rem; line-height:1.5;}
+  .card .filename{font-family:var(--mono); font-size:.72rem; color:var(--text-faint); margin-top:.5rem;}
+
+  /* Detail panel */
+  .overlay{
+    position:fixed; inset:0; background:rgba(10,9,8,.75); z-index:30;
+    display:none; align-items:flex-end; justify-content:center;
+  }
+  .overlay.show{display:flex;}
+  .detail{
+    background:var(--bg); width:100%; max-width:680px; max-height:88vh; overflow-y:auto;
+    border-radius:20px 20px 0 0; border:1px solid var(--line); border-bottom:none;
+    padding:1.5rem 1.25rem 2.5rem;
+  }
+  .detail .closebar{display:flex; justify-content:flex-end; margin-bottom:.5rem;}
+  .detail .closebar button{
+    background:var(--bg-raised); border:1px solid var(--line); color:var(--text-dim);
+    width:32px; height:32px; border-radius:50%; font-size:1rem; cursor:pointer;
+  }
+  .detail h2{font-family:var(--serif); font-weight:400; font-size:1.55rem; margin:0 0 .2rem;}
+  .detail .filename{font-family:var(--mono); font-size:.75rem; color:var(--amber-light); margin-bottom:1.3rem;}
+  .detail .field{margin-bottom:1.1rem;}
+  .detail .field .flabel{
+    font-size:.7rem; letter-spacing:.04em; color:var(--text-faint); margin-bottom:.3rem;
+    font-family:var(--sans); text-transform:uppercase;
+  }
+  .detail .field .fval{color:var(--text); font-size:.9rem; line-height:1.55;}
+  .detail .field .fval.warn{color:var(--amber-light);}
+
+  .ptable{width:100%; border-collapse:collapse; margin-top:.3rem;}
+  .ptable tr{border-bottom:1px solid var(--line);}
+  .ptable tr:last-child{border-bottom:none;}
+  .ptable td{padding:.55rem .2rem; font-size:.85rem; vertical-align:top;}
+  .ptable td:first-child{color:var(--text-dim); width:38%;}
+  .ptable td:nth-child(2){font-family:var(--mono); color:var(--amber-light); width:20%; white-space:nowrap;}
+  .ptable td:last-child{color:var(--text-faint); font-size:.78rem;}
+
+  footer{margin-top:2.5rem; padding-top:1.25rem; border-top:1px solid var(--line); font-size:.75rem; color:var(--text-faint); display:flex; justify-content:space-between;}
+
+  .install-toast{
+    position:fixed; left:1rem; right:1rem; bottom:1rem; background:var(--bg-raised); border:1px solid var(--amber);
+    border-radius:12px; padding:.9rem 1rem; display:flex; align-items:center; gap:.8rem; max-width:648px; margin:0 auto;
+    transform:translateY(120%); transition:transform .35s ease; z-index:20;
+  }
+  .install-toast.show{transform:translateY(0);}
+  .install-toast span{flex:1; font-size:.85rem; color:var(--text-dim);}
+  .install-toast button{background:var(--amber); color:#141210; border:none; border-radius:8px; padding:.5rem .9rem; font-weight:600; font-size:.82rem; cursor:pointer;}
+  .install-toast .dismiss{background:none; color:var(--text-faint); padding:.5rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="mark"><span class="dot"></span> fotolapissable</div>
+    <h1>18 preset,<br><em>una sola domanda</em>: che luce c'era?</h1>
+    <div class="sub">Guida LRC v1.0 — cerca per soggetto o filtra per sorgente file (CR3 diretto o DNG post-PureRAW).</div>
+
+    <div class="searchbar">
+      <input type="text" id="search" placeholder="Cerca: macro, tramonto, concerto, food…">
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="resultcount" id="resultcount"></div>
+  </header>
+
+  <div class="groups" id="groups"></div>
+
+  <footer>
+    <span>Guida Preset LRC v1.0</span>
+    <span>fotolapissable.it</span>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="detail" id="detail"></div>
+</div>
+
+<div class="install-toast" id="installToast">
+  <span>Installa Preset Vault sulla schermata Home per consultarlo anche offline.</span>
+  <button id="installBtn">Installa</button>
+  <button class="dismiss" id="dismissInstall">✕</button>
+</div>
+
+<script>
+/* ---------- Verified preset data — Guida Preset LRC fotolapissable v1.0 ---------- */
+const DATA = [
+  { id:'a1', group:'A — Etna / Notturno / Eventi', file:'FLP_Notte_Luna.xmp', name:'Notte Luna', source:'CR3',
+    tags:['etna','notte','paesaggio'],
+    quando:"Paesaggio notturno con luce lunare, Etna di notte, paesaggi stellati con luna presente, luci urbane lontane.",
+    obiettivo:"RF 14-35mm f/4 L (grandangolo cielo, Milky Way), RF 24-240mm a tele (compressione piani notturni).",
+    nonUsare:"Macro, interni, concerti con luci di scena artificiali colorate.",
+    workflow:"Applicare come base. Regolare esposizione foto per foto dopo l'applicazione. Split toning luci calde (hue 40) + ombre fredde (hue 210) già incluso.",
+    params:[
+      ['Esposizione','+0.35','Punto di partenza — correggere manualmente'],
+      ['Alte Luci','-55','Recupero cielo luminoso o halo lunare'],
+      ['Ombre','+35','Apre il terreno scuro'],
+      ['Bianchi','-20','Protezione sul disco lunare'],
+      ['Neri','-15','Ombre ancorate'],
+      ['Vibrance','+25','Esalta i colori della notte senza bruciare'],
+      ['NR Luminanza','20','Calibrata per ISO moderati — alzare se ISO > 3200'],
+      ['Vignettatura','-18','Guida verso il cielo / soggetto'],
+    ]},
+  { id:'a2', group:'A — Etna / Notturno / Eventi', file:'FLP_Fuoco_Brace.xmp', name:'Fuoco Brace', source:'CR3',
+    tags:['etna','notte'],
+    quando:"Lava in eruzione, brace e fuoco Etna, fiamme notturne, colate laviche, rocce incandescenti. Scene dominate da rossi, arancioni e gialli caldi intensi.",
+    obiettivo:"RF 24-240mm a tele (sicurezza dalla lava), RF 14-35mm con soggetto vicino.",
+    nonUsare:"Paesaggio generico, macro, ritratto, scene con luce fredda o neutra.",
+    workflow:"Applicare come base, poi regolare esposizione manualmente. Se la scena ha zone scure molto estese, alzare leggermente le Ombre dopo l'applicazione.",
+    params:[
+      ['Esposizione','+0.20','Conservativo — la lava è già luminosa'],
+      ['Contrasto','+35','Separa le fiamme dal buio circostante'],
+      ['Alte Luci','-40','Recupero parziale'],
+      ['Neri','-30','Ombre profonde per look drammatico'],
+      ['Sat Rosso','+30','Esalta la lava'],
+      ['Sat Arancio','+40','Protagonista del fuoco'],
+      ['Sat Acqua/Blu','-20 / -15','Riduce i toni freddi indesiderati'],
+      ['Texture/Clarity','+30 / +25','Dettaglio rocce incandescenti e brace'],
+    ]},
+  { id:'a3', group:'A — Etna / Notturno / Eventi', file:'FLP_Etna_Giorno.xmp', name:'Etna Giorno', source:'CR3 (DNG: NR→0, Corr.Obiettivo OFF, Nitidezza→25)',
+    tags:['etna','paesaggio'],
+    quando:"Etna in luce diurna, rocce laviche nere/grigie, vegetazione vulcanica sparsa, cielo terso e blu intenso, foschia atmosferica tipica della Sicilia.",
+    obiettivo:"RF 14-35mm f/4 L (campi lava ampi, crateri, vista panoramica), RF 24-240mm (compressione piani vulcanici, teleobiettivo fumo lontano).",
+    nonUsare:"Eruzione con lava (→ Fuoco Brace), alba/tramonto Etna (→ Etna Alba Tramonto), mare.",
+    workflow:"Valori Ombre e Neri calibrati per mantenere le rocce pesanti. Non aprire ulteriormente le ombre o si perde il carattere vulcanico.",
+    note:"Dehaze +8 e Clarity +10 inclusi per gestire la foschia tipica della Sicilia. HSL Blu luminanza -15 per cielo più scuro. Sat Verde -15 per non far dominare la vegetazione sulle rocce.",
+    params:[
+      ['Contrasto','+15','Meno aggressivo sulle scene velate tipiche della Sicilia'],
+      ['Alte Luci','-20','Il cielo di giorno hazy non ha alteluci critiche'],
+      ['Ombre','+35','Apre il terreno senza perdere il carattere vulcanico'],
+      ['Neri','-15','Rocce ancorate — non toccare'],
+      ['Clarity','+10','Definisce la massa del vulcano contro il cielo velato'],
+      ['Dehaze','+8','Foschia atmosferica quasi sempre presente'],
+      ['Sat Blu / Lum Blu','+8 / -15','Cielo più scuro e intenso'],
+      ['Sat Verde','-15','Vegetazione contenuta — le rocce dominano'],
+      ['Grana','8','Valorizza la texture vulcanica grezza'],
+    ]},
+  { id:'a4', group:'A — Etna / Notturno / Eventi', file:'FLP_Etna_Alba_Tramonto.xmp', name:'Etna Alba Tramonto', source:'CR3 (DNG: NR→0, Corr.Obiettivo OFF)',
+    tags:['etna','tramonto','alba','paesaggio'],
+    quando:"Etna all'alba o al tramonto, cieli arancio/rosso/viola sul vulcano, paesaggio vulcanico in controluce, montagna in silhouette parziale, fumo illuminato dalla luce bassa.",
+    obiettivo:"RF 14-35mm f/4 L (vulcano in contesto ampio), RF 24-240mm (sole basso ingrandito, fumo lontano).",
+    nonUsare:"Eruzione con lava (→ Fuoco Brace), Etna di giorno (→ Etna Giorno), mare (→ Mare Tramonto Golden Hour).",
+    workflow:"Workflow consigliato: Lightroom (questo preset) + Luminar Neo (Migliora AI) per tramonti con cielo dinamico e nuvole.",
+    note:"Rispetto al Mare: Neri molto più bassi (-20) per mantenere le rocce laviche pesanti e ancorate — al mare si aprono le ombre, sull'Etna no.",
+    params:[
+      ['Contrasto','+20','Il vulcano ha bisogno di più contrasto rispetto al mare'],
+      ['Alte Luci','-60','Calibrato su foto reali'],
+      ['Ombre','+35','Ridotto rispetto al mare — montagna già illuminata a golden hour'],
+      ['Neri','-20','Rocce laviche pesanti — non aprire'],
+      ['Sat Arancio','+30','Protagonista del cielo al tramonto'],
+      ['Sat Viola','+20','I viola del crepuscolo sull\'Etna sono caratteristici'],
+      ['Lum Blu','-15','Cielo più drammatico'],
+      ['Vignettatura','-25','Più marcata del mare — il vulcano è imponente'],
+    ]},
+  { id:'a5', group:'A — Etna / Notturno / Eventi', file:'FLP_Concerto_Notturno.xmp', name:'Concerto Notturno', source:'CR3',
+    tags:['notte','eventi'],
+    quando:"Concerti e eventi in piazza o al chiuso, luci di scena colorate (ciano, verde, arancio), fondali scuri, ISO elevati (1600–6400), esposizione corretta o leggermente normale.",
+    obiettivo:"RF 50mm f/1.8 (bassa luce, bokeh), RF 14-35mm f/4 L (scena ampia, palco intero).",
+    nonUsare:"Foto sottoesposte oltre 1 stop (→ variante Sottoesposto), paesaggio, macro, luce naturale diurna.",
+    workflow:"Applicare come base, poi regolare esposizione manualmente foto per foto. NR Luminanza 35 calibrata per ISO max 3200.",
+    note:"Split toning: luci calde (hue 38, sat 5) + ombre fredde (hue 220, sat 8) per separare visivamente palco e fondale.",
+    params:[
+      ['Esposizione','+0.35','Punto di partenza — regolare manualmente'],
+      ['Alte Luci','-55','Recupero ledwall e faretti senza bruciare'],
+      ['Ombre','+40','Apre il pubblico e i fondali scuri'],
+      ['NR Luminanza','35 / Detail 60','Calibrata per ISO 3200'],
+      ['NR Colore','45','Puntini colorati frequenti con luci di scena miste'],
+      ['Sat Ciano/Blu','+20','Esalta le luci fredde di scena tipiche'],
+      ['Sat Giallo/Verde','+15 / +10','Luci calde sul palco'],
+      ['Vignettatura','-18','Isola il palco dall\'ambiente'],
+    ]},
+  { id:'a6', group:'A — Etna / Notturno / Eventi', file:'FLP_Concerto_Sottoesposto.xmp', name:'Concerto Sottoesposto', source:'CR3',
+    tags:['notte','eventi'],
+    quando:"Concerti e eventi notturni con file strutturalmente sottoesposti (1–2 stop sotto), pubblico e fondali molto scuri, ledwall o luci di scena che rischiano di bruciare.",
+    obiettivo:"RF 50mm f/1.8, RF 14-35mm f/4 L.",
+    nonUsare:"File correttamente esposti (→ Concerto Notturno), paesaggio, macro.",
+    workflow:"Applicare come base, poi verificare che le alte luci del ledwall non brucino con istogramma. Curva ombre sollevata (30→28) per aprire il pubblico senza toccare i mezzitoni.",
+    note:"Differenza dal Notturno base: Esposizione +0.60 (vs +0.35), Ombre +65 (vs +40), Neri +20 (vs -15), Alte Luci -70 (vs -55), Bianchi -30 (vs -20).",
+    params:[
+      ['Esposizione','+0.60','Recupero aggressivo sottoesposizione'],
+      ['Alte Luci','-70','Protezione forte sul ledwall'],
+      ['Ombre','+65','Apre il pubblico — il valore chiave di questo preset'],
+      ['Bianchi','-30','Secondo livello protezione luci'],
+      ['Neri','+20','Solleva i neri — intenzionale per look aperto'],
+      ['Curva ombre','30 → 28','Sollevamento selettivo delle ombre profonde'],
+    ]},
+
+  { id:'b1', group:'B — Macro Tubo 13mm / Naturalistico', file:'MF_MACRO_TUBO13_SOLE_RAW.xmp', name:'Macro Tubo13 · Sole · RAW', source:'CR3',
+    tags:['macro','sole'],
+    quando:"Macro con prolunga 13mm + RF 24-240mm a 240mm, luce solare diretta, soggetti in piena luce.",
+    nonUsare:"DNG post-PureRAW (→ variante PureRAW), luce diffusa o cielo coperto (→ variante Nuvoloso).",
+    workflow:"NR inclusa calibrata per ISO auto max 3200. Correzioni obiettivo ON.",
+    note:"Look morbido e naturalistico (serie Tubo13): Nitidezza 20, Texture 20, Clarity 25. Rispetto al Nuvoloso: Alte Luci -60 (vs -20, il sole diretto brucia di più), NR Luminanza 35 (vs 40, con sole si usano ISO più bassi).",
+    params:[
+      ['Alte Luci','-60','Sole diretto — protezione alta'],
+      ['Ombre','+30','Apre senza svuotare il soggetto'],
+      ['Clarity','+25','Micro-contrasto naturale sulle texture'],
+      ['NR Luminanza','35','ISO moderati con sole'],
+      ['NR Colore','25','Standard'],
+      ['Vignettatura','-15','Leggera — isola il soggetto'],
+    ]},
+  { id:'b2', group:'B — Macro Tubo 13mm / Naturalistico', file:'MF_MACRO_TUBO13_SOLE_PureRAW.xmp', name:'Macro Tubo13 · Sole · PureRAW', source:'DNG post-DxO',
+    tags:['macro','sole'],
+    quando:"Macro con prolunga 13mm + RF 24-240mm a 240mm, luce solare diretta, file DNG già elaborati con DxO PureRAW 4.",
+    nonUsare:"CR3 diretto (→ variante RAW), luce diffusa (→ variante Nuvoloso).",
+    workflow:"NR azzerata — DxO ha già denoised. Correzioni obiettivo DISABILITATE — già applicate da DxO upstream.",
+    params:[
+      ['Alte Luci','-60','Stessa protezione della variante RAW'],
+      ['NR Luminanza','0','DxO ha già denoised — non toccare'],
+      ['NR Colore','0','DxO ha già gestito il rumore cromatico'],
+      ['Correzioni Obiettivo','OFF','DxO ha già applicato — riattivare crea doppia correzione'],
+    ]},
+  { id:'b3', group:'B — Macro Tubo 13mm / Naturalistico', file:'MF_MACRO_TUBO13_NUVOLOSO_RAW.xmp', name:'Macro Tubo13 · Nuvoloso · RAW', source:'CR3',
+    tags:['macro','nuvoloso'],
+    quando:"Macro con prolunga 13mm + RF 24-240mm a 240mm, cielo coperto o luce diffusa, giornate nuvolose.",
+    nonUsare:"DNG post-PureRAW (→ variante PureRAW), luce solare diretta (→ variante Sole).",
+    workflow:"NR Luminanza 40 calibrata per ISO auto su luce scarsa.",
+    note:"Rispetto al Sole: Alte Luci -20 (vs -60, luce diffusa senza zone brillanti critiche), Ombre +45 (vs +30, cielo coperto = ombre più dense), NR Luminanza 40 (vs 35, ISO più alti).",
+    params:[
+      ['Alte Luci','-20','Luce diffusa — protezione moderata'],
+      ['Ombre','+45','Cielo coperto crea ombre più dense'],
+      ['NR Luminanza','40','ISO più alti con luce diffusa'],
+      ['NR Colore','25','Standard'],
+    ]},
+  { id:'b4', group:'B — Macro Tubo 13mm / Naturalistico', file:'MF_MACRO_TUBO13_NUVOLOSO_PureRAW.xmp', name:'Macro Tubo13 · Nuvoloso · PureRAW', source:'DNG post-DxO',
+    tags:['macro','nuvoloso'],
+    quando:"Macro con prolunga 13mm + RF 24-240mm a 240mm, cielo coperto o luce diffusa, file DNG da DxO PureRAW 4.",
+    nonUsare:"CR3 diretto (→ variante RAW), luce solare (→ variante Sole).",
+    workflow:"NR azzerata. Correzioni obiettivo disabilitate. Ombre +45 per luce diffusa.",
+    params:[
+      ['Alte Luci','-20','Luce diffusa'],
+      ['Ombre','+45','Luce diffusa — ombre dense'],
+      ['NR Luminanza','0','DxO ha già denoised'],
+      ['NR Colore','0','DxO ha già gestito'],
+      ['Correzioni Obiettivo','OFF','DxO ha già applicato'],
+    ]},
+
+  { id:'c1', group:'C — Macro Prolunga / Alta Definizione', file:'Macro_con_Prolunga_AltaDef_RAW.xmp', name:'Macro Prolunga Alta Def · RAW', source:'CR3',
+    tags:['macro'],
+    quando:"Macro con prolunga 13mm o 18mm + RF 24-240mm a 240mm, qualsiasi luce, quando si vuole massima nitidezza e texture. Ideale per insetti con esoscheletro, ali, strutture complesse.",
+    nonUsare:"DNG post-PureRAW (→ variante PureRAW), soggetti morbidi dove texture alta è controproducente.",
+    workflow:"Valutare sempre a 100% zoom prima di esportare — la nitidezza alta può amplificare il rumore se ISO > 1600.",
+    note:"Differenza dai Tubo13: Nitidezza 80 (vs 20), Texture 40 (vs 20), Clarity 15 (vs 25) — look più incisivo e definito; i Tubo13 sono più morbidi e naturalistici.",
+    params:[
+      ['Nitidezza','80','Alta — valutare a 100% zoom'],
+      ['SharpenDetail','70','Texture fini (chitina, squame, venature)'],
+      ['SharpenMasking','0','Nessun masking — nitidezza su tutto'],
+      ['Texture','40','Microdettaglio esaltato'],
+      ['NR Luminanza','25','Bilanciamento con la nitidezza alta'],
+      ['Profilo Camera','Camera Neutral','Massima fedeltà cromatica'],
+    ]},
+  { id:'c2', group:'C — Macro Prolunga / Alta Definizione', file:'Macro_con_Prolunga_AltaDef_PureRAW.xmp', name:'Macro Prolunga Alta Def · PureRAW', source:'DNG post-DxO (DeepPRIME XD2)',
+    tags:['macro'],
+    quando:"Macro con prolunga 13mm o 18mm + RF 24-240mm a 240mm, file DNG già elaborati con DxO PureRAW 4 (DeepPRIME XD2).",
+    workflow:"NR quasi azzerata (Luminanza 5, Colore 8) perché DeepPRIME XD2 ha già denoised in modo eccellente. Nitidezza ridotta a 55 (vs 80 del RAW) perché il DNG è già più nitido in partenza. Correzioni obiettivo disabilitate.",
+    params:[
+      ['Nitidezza','55','Ridotta rispetto al RAW — DNG già più nitido'],
+      ['SharpenRadius','0.7','Più stretto — dettaglio fine già estratto'],
+      ['Texture','45','Leggermente più alta — DNG supporta di più'],
+      ['NR Luminanza','5','Solo protezione residua minima'],
+      ['NR Colore','8','Solo protezione residua minima'],
+      ['Correzioni Obiettivo','OFF','DxO ha già applicato'],
+      ['Profilo Camera','Adobe Standard','Standard per DNG post-processed'],
+    ]},
+
+  { id:'d1', group:'D — Fiori e Natura', file:'FLP_Fiori_Natura.xmp', name:'Fiori Natura', source:'CR3 (DNG: NR→0, Corr.Obiettivo OFF)',
+    tags:['fiori'],
+    quando:"Fotografia di fiori in natura, flora in campo aperto, petali, dettagli botanici, fiori su sfondo sfocato naturale. Qualsiasi luce.",
+    obiettivo:"RF 50mm f/1.8 (bokeh cremoso), RF 14-35mm a 14-20mm (fiore in contesto ampio), RF 24-240mm a 200+ (fiori distanti, compressione sfondo).",
+    nonUsare:"Macro da vicino con prolunga (→ serie MF), still life in studio, insetti ravvicinati.",
+    note:"Rispetto a Fiori Soft Sfondo: più Contrasto (+12 vs 0), più Texture (+18 vs +5), più saturazione — look vivace. Il Soft Sfondo è più delicato per composizioni minimali.",
+    params:[
+      ['Alte Luci','-65','Recupero petali bianchi — valore calibrato'],
+      ['Sat Verde','-15','Verde foglie contenuto — il fiore è il soggetto'],
+      ['Lum Verde','-12','Scurisce le foglie per fare emergere il fiore'],
+      ['Sat Rosso','+10','Petali rossi/rosa vividi'],
+      ['Sat Viola/Magenta','+12 / +10','Fiori viola e fucsia'],
+      ['Split toning','Ombre blu 210, Luci calde 45','Tono naturale fresco'],
+    ]},
+  { id:'d2', group:'D — Fiori e Natura', file:'FLP_Fiori_Soft_Sfondo.xmp', name:'Fiori Soft Sfondo', source:'CR3',
+    tags:['fiori'],
+    quando:"Fotografia di fiori con sfondo molto sfocato (bokeh forte), petali delicati su fondo neutro, fiori singoli isolati. Tocco più morbido — meno contrasto, meno saturazione.",
+    obiettivo:"RF 50mm f/1.8 a tutta apertura (sfondo cremoso), RF 24-240mm a 200-240mm (sfondo compresso e sfocato).",
+    nonUsare:"Scene con dettaglio fine da esaltare (→ Fiori Natura), paesaggio, macro con prolunga.",
+    workflow:"Contrasto a 0 — se la foto risulta piatta aumentare manualmente fino a +10.",
+    params:[
+      ['Contrasto','0','Morbidezza — alzare manualmente se necessario'],
+      ['Alte Luci','-35','Protezione moderata — sfondo sfocato non ha luci critiche'],
+      ['Texture','+5','Quasi nullo — softness deliberata'],
+      ['Clarity','0','Nessun micro-contrasto — sfondo più fluido'],
+      ['Sat Giallo/Verde','-5 / -10','Sfondo verde desaturato per staccare il fiore'],
+      ['NR Luminanza','10','Leggera — ISO generalmente bassi con f/1.8'],
+    ]},
+
+  { id:'e1', group:'E — Export Social', file:'FLP_Social_BN_Macro.xmp', name:'Social B&N Macro', source:'qualsiasi (ultimo step)',
+    tags:['social','macro'],
+    quando:"Export per social (Instagram, portfolio web) di foto macro in bianco e nero. Conversione B&N con mixer calibrato per macro.",
+    nonUsare:"Export a colori, stampa, agenzie stock (richiedono colore).",
+    workflow:"Applicare come ultimo step, prima dell'export. Valutare il mixer B&N sui toni dominanti della foto specifica.",
+    note:"Mixer B&N: Arancio alto (40) per esaltare chitina ed esoscheletro degli insetti. Blu basso (-10) per scurire eventuali sfondi azzurri. Giallo +30 per ali e texture chiare.",
+    params:[
+      ['Treatment','Black & White','Conversione B&N — non toccare il WB'],
+      ['Contrasto','+25','Separazione toni — classico macro BN'],
+      ['Mixer Arancio','+40','Chitina insetti più chiara e presente'],
+      ['Mixer Blu','-10','Sfondi azzurri scuri'],
+      ['Vignettatura','-18','Stacco netto del soggetto'],
+      ['Masking nitidezza','70','Nitidezza solo sui bordi del soggetto'],
+    ]},
+  { id:'e2', group:'E — Export Social', file:'FLP_Social_Pop_Macro.xmp', name:'Social Pop Macro', source:'qualsiasi (ultimo step)',
+    tags:['social','macro'],
+    quando:"Export per social di foto macro a colori con look vivace e pop. Più punch, saturazione alzata su rossi/arancioni/viola (colori tipici insetti), verdi tenuti a bada.",
+    nonUsare:"Export per stampa o stock (troppo saturo per uso professionale), B&N (→ Social BN).",
+    workflow:"Applicare come ultimo step. Se i colori risultano ancora piatti, alzare Vibrance di +5.",
+    params:[
+      ['Vibrance','+18','Saturazione selettiva — non brucia i colori già saturi'],
+      ['Saturazione','+4','Tocco globale minimo'],
+      ['Sat Rosso/Arancio','+15','Colori tipici degli insetti'],
+      ['Sat Viola/Magenta','+15','Coleotteri, farfalle, ali iridescenti'],
+      ['Sat Verde','-10','Sfondo vegetazione contenuto'],
+      ['Vignettatura','-12','Stacco nel feed social'],
+    ]},
+
+  { id:'f1', group:'F — Mare e Paesaggio', file:'FLP_Mare_Tramonto_GoldenHour.xmp', name:'Mare Tramonto Golden Hour', source:'CR3 (DNG: NR→0, Corr.Obiettivo OFF)',
+    tags:['mare','tramonto','paesaggio'],
+    quando:"Tramonto e golden hour sul mare, riflessi sull'acqua, cieli arancio/oro, alba con luce calda, scogliere al tramonto, mare con sole basso.",
+    obiettivo:"RF 14-35mm f/4 L (cielo ampio, prima linea scogliera), RF 24-240mm a 200-240mm (sole ingrandito, piani sovrapposti sull'acqua).",
+    nonUsare:"Etna (→ Etna Alba Tramonto — i neri dell'Etna devono restare più bassi), scene fredde o pastello, macro, interni.",
+    workflow:"Protezione alteluci aggressiva (-75 luci, -30 bianchi) per scene con sole visibile o riflessi forti. Applicare, poi correggere WB ed esposizione foto per foto.",
+    note:"Variante pastello (albe rosa/lavanda): Contrasto a 0, Neri a +15, Sat Arancio a -10, Sat Viola a +20.",
+    params:[
+      ['Alte Luci','-75','Protezione aggressiva — sole visibile o riflessi forti'],
+      ['Ombre','+35','Recupero rocce, schiuma, primo piano'],
+      ['Bianchi','-30','Secondo livello protezione disco solare'],
+      ['Vibrance','+30','Golden hour — la luce radente merita impatto'],
+      ['Sat Arancio','+35','Protagonista del tramonto'],
+      ['Sat Giallo','+25','Toni dorati'],
+      ['Lum Blu','-20','Cielo più scuro e drammatico'],
+      ['Vignettatura','-25','Cornice decisa per scene drammatiche'],
+    ]},
+
+  { id:'g1', group:'G — Food e Still Life', file:'FLP_Food_Naturale_Mediterraneo.xmp', name:'Food Naturale Mediterraneo', source:'CR3 (DNG: NR→0, Corr.Obiettivo OFF)',
+    tags:['food'],
+    quando:"Food e still life in luce naturale diurna: mercato, cucina, tavola all'aperto, prodotti tipici siciliani. Colori fedeli, texture valorizzata, look pulito non da studio.",
+    obiettivo:"RF 50mm f/1.8 (piatto ravvicinato con bokeh), RF 14-35mm a 35mm (contesto ambiente), RF 24-240mm a 50-85mm (food distante).",
+    nonUsare:"Paesaggio, macro natura, food da studio su sfondo bianco.",
+    note:"Variante ristorante (luce calda artificiale serale): Ombre a +45, Neri a -15, azzerare Sat Arancio/Giallo, Vibrance a +15. Pesce al mercato con luce fredda da banco frigo: alzare WB manualmente di +500/800K dopo il preset. Colori monodominanti: abbassare Luminanza del colore dominante di -8 per evitare clipping.",
+    params:[
+      ['Texture','+15','Scorza agrumi, squame pesce, grana pomodorini — fondamentale'],
+      ['Clarity','+10','Micro-contrasto texture organiche'],
+      ['Sat Arancio','-15','Ridotto — arance e triglie saturano facilmente'],
+      ['Sat Viola','+10','Uva, melanzane, frutti scuri'],
+      ['Ombre','+35','Apre olive, polpo, prodotti scuri senza appiattire'],
+      ['Neri','0','Neutro — olive e fondi scuri devono restare ancorati'],
+      ['Vignettatura','-15','Leggera — guida l\'occhio sul piatto'],
+    ]},
+];
+
+const FILTERS = [
+  {key:'all', label:'Tutti'},
+  {key:'etna', label:'Etna'},
+  {key:'macro', label:'Macro'},
+  {key:'fiori', label:'Fiori'},
+  {key:'mare', label:'Mare'},
+  {key:'food', label:'Food'},
+  {key:'social', label:'Social'},
+  {key:'notte', label:'Notte/Eventi'},
+];
+
+let activeFilter = 'all';
+let query = '';
+
+function normalize(s){ return (s||'').toLowerCase(); }
+
+function matches(item){
+  if (activeFilter !== 'all' && !item.tags.includes(activeFilter)) return false;
+  if (!query) return true;
+  const q = normalize(query);
+  const hay = normalize([item.name, item.quando, item.group, item.file, (item.tags||[]).join(' ')].join(' '));
+  return hay.includes(q);
+}
+
+function renderChips(){
+  const el = document.getElementById('chips');
+  el.innerHTML = FILTERS.map(f => `<span class="chip ${activeFilter===f.key?'active':''}" data-key="${f.key}">${f.label}</span>`).join('');
+  el.querySelectorAll('.chip').forEach(c => c.onclick = () => { activeFilter = c.dataset.key; renderChips(); renderList(); });
+}
+
+function renderList(){
+  const filtered = DATA.filter(matches);
+  document.getElementById('resultcount').textContent = `${filtered.length} preset`;
+
+  const groups = {};
+  filtered.forEach(item => { (groups[item.group] = groups[item.group] || []).push(item); });
+
+  const container = document.getElementById('groups');
+  if (filtered.length === 0){
+    container.innerHTML = `<p style="color:var(--text-faint); font-size:.9rem; margin-top:2rem;">Nessun preset trovato. Prova un altro termine.</p>`;
+    return;
+  }
+
+  container.innerHTML = Object.keys(groups).map(g => `
+    <div class="group-title">${g}</div>
+    ${groups[g].map(item => `
+      <div class="card" data-id="${item.id}">
+        <div class="row1">
+          <h3>${item.name}</h3>
+          <span class="srctag ${item.source.includes('DNG')?'dng':''}">${item.source.split(' ')[0] === 'CR3' ? 'CR3' : (item.source.includes('DNG') ? 'DNG' : item.source.split(' ')[0])}</span>
+        </div>
+        <div class="quando">${item.quando}</div>
+        <div class="filename">${item.file}</div>
+      </div>
+    `).join('')}
+  `).join('');
+
+  container.querySelectorAll('.card').forEach(c => c.onclick = () => openDetail(c.dataset.id));
+}
+
+function openDetail(id){
+  const item = DATA.find(d => d.id === id);
+  if (!item) return;
+  const detail = document.getElementById('detail');
+  detail.innerHTML = `
+    <div class="closebar"><button id="closeDetail">✕</button></div>
+    <h2>${item.name}</h2>
+    <div class="filename">${item.file}</div>
+
+    <div class="field">
+      <div class="flabel">Quando usarlo</div>
+      <div class="fval">${item.quando}</div>
+    </div>
+    ${item.obiettivo ? `<div class="field"><div class="flabel">Obiettivo</div><div class="fval">${item.obiettivo}</div></div>` : ''}
+    <div class="field">
+      <div class="flabel">Sorgente file</div>
+      <div class="fval">${item.source}</div>
+    </div>
+    ${item.nonUsare ? `<div class="field"><div class="flabel">Non usarlo per</div><div class="fval warn">${item.nonUsare}</div></div>` : ''}
+    ${item.workflow ? `<div class="field"><div class="flabel">Workflow</div><div class="fval">${item.workflow}</div></div>` : ''}
+    ${item.note ? `<div class="field"><div class="flabel">Note / differenze</div><div class="fval">${item.note}</div></div>` : ''}
+
+    <div class="field">
+      <div class="flabel">Parametri</div>
+      <table class="ptable">
+        ${item.params.map(p => `<tr><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]||''}</td></tr>`).join('')}
+      </table>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('closeDetail').onclick = closeDetail;
+}
+function closeDetail(){ document.getElementById('overlay').classList.remove('show'); }
+document.getElementById('overlay').onclick = (e) => { if (e.target.id === 'overlay') closeDetail(); };
+
+document.getElementById('search').addEventListener('input', (e) => { query = e.target.value; renderList(); });
+
+renderChips();
+renderList();
+
+/* ---------- PWA install + service worker ---------- */
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installToast').classList.add('show');
+});
+document.getElementById('installBtn').onclick = async () => {
+  document.getElementById('installToast').classList.remove('show');
+  if (deferredPrompt){ deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
+};
+document.getElementById('dismissInstall').onclick = () => {
+  document.getElementById('installToast').classList.remove('show');
+};
+
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
